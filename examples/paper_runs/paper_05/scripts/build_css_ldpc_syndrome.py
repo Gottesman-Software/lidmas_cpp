@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Build paper_05 CSS-LDPC syndrome circuit artifacts."""
+"""Build paper_05 compact CSS/Steane syndrome circuit artifacts."""
 
 from __future__ import annotations
 
@@ -93,7 +93,7 @@ def main() -> int:
             writer.writerow({field: row.get(field, "") for field in fields})
 
     (out_dir / "circuit_drawings.txt").write_text("\n".join(drawings), encoding="utf-8")
-    print(f"Wrote {len(specs)} CSS-LDPC syndrome circuits to {out_dir}")
+    print(f"Wrote {len(specs)} compact CSS/Steane syndrome circuits to {out_dir}")
     return 0
 
 

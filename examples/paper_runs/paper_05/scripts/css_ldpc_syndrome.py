@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
-"""Small CSS-LDPC syndrome helpers for paper_05.
+"""Small compact CSS/Steane syndrome helpers for paper_05.
 
 The default matrix is the Steane [[7,1,3]] CSS parity-check matrix. This is a
-hardware-safe LDPC-style proxy for live syndrome extraction: it is low-density,
+hardware-safe compact CSS proxy for live syndrome extraction: it is low-density,
 has unique single-X syndromes, and needs only one ancilla per Z check.
 """
 
@@ -140,7 +140,7 @@ def build_qiskit_circuit(spec: ExperimentSpec) -> Any:
     try:
         from qiskit import ClassicalRegister, QuantumCircuit, QuantumRegister  # type: ignore
     except Exception as exc:  # pragma: no cover - depends on optional environment
-        raise SystemExit("Qiskit is required to build CSS-LDPC syndrome circuits.") from exc
+        raise SystemExit("Qiskit is required to build compact CSS/Steane syndrome circuits.") from exc
 
     data = QuantumRegister(n_data(), "d")
     anc = QuantumRegister(n_checks(), "z")

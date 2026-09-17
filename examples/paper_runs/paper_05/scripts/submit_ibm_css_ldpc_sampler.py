@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Submit paper_05 CSS-LDPC syndrome circuits to IBM Runtime Sampler."""
+"""Submit paper_05 compact CSS/Steane syndrome circuits to IBM Runtime Sampler."""
 
 from __future__ import annotations
 
@@ -108,7 +108,7 @@ def main() -> int:
         status="submitted",
         experiments=experiment_metadata,
     )
-    print(f"Submitted IBM Runtime CSS-LDPC job {job_id} on {backend_name}; wrote {submission_path}")
+    print(f"Submitted IBM Runtime compact CSS/Steane job {job_id} on {backend_name}; wrote {submission_path}")
 
     if args.no_wait:
         print("Not waiting for results because --no-wait was set.")
@@ -140,7 +140,7 @@ def main() -> int:
     with out_path.open("w", encoding="utf-8") as f:
         json.dump(payload, f, indent=2)
         f.write("\n")
-    print(f"Wrote IBM Runtime CSS-LDPC results to {out_path}")
+    print(f"Wrote IBM Runtime compact CSS/Steane results to {out_path}")
     return 0
 
 

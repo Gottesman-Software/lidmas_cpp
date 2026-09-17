@@ -10,7 +10,14 @@ from dataclasses import dataclass
 from typing import Any
 
 
-POLICIES = ("mwpm", "uf", "bp")
+POLICIES = ("emw", "uf_like", "bit_flip")
+POLICY_ALIASES = {
+    "mwpm": "emw",
+    "min_weight": "emw",
+    "minimum_weight": "emw",
+    "uf": "uf_like",
+    "bp": "bit_flip",
+}
 
 
 @dataclass(frozen=True)
@@ -28,8 +35,13 @@ def parse_decoders(value: str) -> tuple[str, ...]:
         name = part.strip().lower()
         if not name:
             continue
+        name = POLICY_ALIASES.get(name, name)
         if name not in POLICIES:
-            raise ValueError(f"unknown decoder policy {name!r}; expected one of {', '.join(POLICIES)}")
+            aliases = ", ".join(sorted(POLICY_ALIASES))
+            raise ValueError(
+                f"unknown decoder policy {name!r}; expected one of {', '.join(POLICIES)} "
+                f"(legacy aliases: {aliases})"
+            )
         if name not in decoders:
             decoders.append(name)
     return tuple(decoders or POLICIES)
@@ -198,16 +210,16 @@ def decode_min_weight(
     return corrections[target]
 
 
-def _decode_mwpm(matrix: list[list[int]], syndrome: list[int]) -> DecodeResult:
+def _decode_emw(matrix: list[list[int]], syndrome: list[int]) -> DecodeResult:
     correction = decode_min_weight(matrix, syndrome) or ()
     residual = tuple(residual_syndrome(matrix, syndrome, correction))
     return DecodeResult(
-        policy="mwpm",
+        policy="emw",
         correction=tuple(correction),
         residual=residual,
         confidence=1.0 if not any(residual) else 0.0,
         diagnostics={
-            "policy": "exact_minimum_weight_binary",
+            "policy": "exact_binary_minimum_weight",
             "fallback": "0",
         },
     )
@@ -227,16 +239,16 @@ def _incident_maps(matrix: list[list[int]]) -> tuple[list[list[int]], list[list[
     return check_to_vars, var_to_checks
 
 
-def _decode_uf(matrix: list[list[int]], syndrome: list[int]) -> DecodeResult:
+def _decode_uf_like(matrix: list[list[int]], syndrome: list[int]) -> DecodeResult:
     target = [int(bit) & 1 for bit in syndrome]
     if not any(target):
         return DecodeResult(
-            policy="uf",
+            policy="uf_like",
             correction=(),
             residual=tuple(0 for _ in target),
             confidence=1.0,
             diagnostics={
-                "policy": "union_find_erasure_peeling",
+                "policy": "union_find_like_greedy_erasure",
                 "uf_growth_rounds": "0",
                 "uf_erasure_size": "0",
                 "uf_greedy_flips": "0",
@@ -289,12 +301,12 @@ def _decode_uf(matrix: list[list[int]], syndrome: list[int]) -> DecodeResult:
     correction = tuple(sorted(correction_set))
     residual_tuple = tuple(residual_syndrome(matrix, target, correction))
     return DecodeResult(
-        policy="uf",
+        policy="uf_like",
         correction=tuple(correction),
         residual=residual_tuple,
         confidence=1.0 if not any(residual_tuple) else 0.0,
         diagnostics={
-            "policy": "union_find_erasure_peeling",
+            "policy": "union_find_like_greedy_erasure",
             "uf_growth_rounds": "1",
             "uf_erasure_size": str(len(erasure)),
             "uf_greedy_flips": str(greedy_flips),
@@ -303,15 +315,15 @@ def _decode_uf(matrix: list[list[int]], syndrome: list[int]) -> DecodeResult:
     )
 
 
-def _decode_bp(matrix: list[list[int]], syndrome: list[int], *, prior_p: float = 0.08, max_iter: int = 12) -> DecodeResult:
+def _decode_bit_flip(matrix: list[list[int]], syndrome: list[int], *, prior_p: float = 0.08, max_iter: int = 12) -> DecodeResult:
     target = [int(bit) & 1 for bit in syndrome]
     if not matrix:
         return DecodeResult(
-            policy="bp",
+            policy="bit_flip",
             correction=(),
             residual=tuple(target),
             confidence=0.0,
-            diagnostics={"policy": "belief_propagation_hard_decision_min_sum", "bp_converged": "0", "fallback": "0"},
+            diagnostics={"policy": "hard_decision_bit_flip", "bit_flip_converged": "0", "fallback": "0"},
         )
 
     n_data = len(matrix[0])
@@ -375,16 +387,16 @@ def _decode_bp(matrix: list[list[int]], syndrome: list[int], *, prior_p: float =
 
     residual = tuple(residual_syndrome(matrix, target, correction))
     return DecodeResult(
-        policy="bp",
+        policy="bit_flip",
         correction=correction,
         residual=residual,
         confidence=1.0 if converged else (0.8 if not any(residual) else 0.0),
         diagnostics={
-            "policy": "belief_propagation_hard_decision_min_sum",
-            "bp_converged": "1" if converged else "0",
-            "bp_iterations": str(iterations),
-            "bp_best_residual_weight": str(sum(best_residual)),
-            "bp_closure_weight": str(closure_weight),
+            "policy": "hard_decision_bit_flip",
+            "bit_flip_converged": "1" if converged else "0",
+            "bit_flip_iterations": str(iterations),
+            "bit_flip_best_residual_weight": str(sum(best_residual)),
+            "bit_flip_closure_weight": str(closure_weight),
             "fallback": fallback,
         },
     )
@@ -411,10 +423,11 @@ def _decode_policy_cached(
 ) -> DecodeResult:
     matrix = [list(row) for row in key]
     syndrome_bits = list(syndrome)
-    if policy == "mwpm":
-        return _decode_mwpm(matrix, syndrome_bits)
-    if policy == "uf":
-        return _decode_uf(matrix, syndrome_bits)
-    if policy == "bp":
-        return _decode_bp(matrix, syndrome_bits, prior_p=prior_p)
+    policy = POLICY_ALIASES.get(policy, policy)
+    if policy == "emw":
+        return _decode_emw(matrix, syndrome_bits)
+    if policy == "uf_like":
+        return _decode_uf_like(matrix, syndrome_bits)
+    if policy == "bit_flip":
+        return _decode_bit_flip(matrix, syndrome_bits, prior_p=prior_p)
     raise ValueError(f"unknown decoder policy: {policy}")
