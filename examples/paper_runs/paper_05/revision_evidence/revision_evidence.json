@@ -1,0 +1,16 @@
+{
+  "mapping": {
+    "targets": 40,
+    "noiseless_mapping_passes": 40,
+    "reversed_bit_negative_control_detections": 40,
+    "data_measurement_roundtrip_passes": 40
+  },
+  "decoder_audit_rows": 21,
+  "hardware_data_mapping_rows": 8,
+  "support_metric_rows": 48,
+  "gkp_sensitivity_scenarios": 13,
+  "software": {
+    "python": "3.14.0",
+    "numpy": "2.4.2"
+  }
+}

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Convert raw paper_05 CSS-LDPC syndrome results into decoder request records."""
+"""Convert raw paper_05 compact CSS/Steane syndrome results into decoder request records."""
 
 from __future__ import annotations
 
@@ -169,7 +169,7 @@ def main() -> int:
         writer.writeheader()
         writer.writerows(table_rows)
 
-    print(f"Wrote {len(manifest_rows)} CSS-LDPC request streams to {out_dir}")
+    print(f"Wrote {len(manifest_rows)} compact CSS/Steane request streams to {out_dir}")
     return 0
 
 

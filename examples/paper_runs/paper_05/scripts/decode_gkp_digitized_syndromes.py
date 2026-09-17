@@ -18,8 +18,8 @@ def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--in-dir", required=True)
     parser.add_argument("--out-dir", required=True)
-    parser.add_argument("--decoders", default="mwpm,uf,bp")
-    parser.add_argument("--bp-prior", type=float, default=0.08)
+    parser.add_argument("--decoders", default="emw,uf_like,bit_flip")
+    parser.add_argument("--bit-flip-prior", "--bp-prior", dest="bit_flip_prior", type=float, default=0.08)
     return parser.parse_args()
 
 
@@ -70,7 +70,7 @@ def main() -> int:
                 injected_raw = meta.get("injected_q", "")
                 injected = "" if injected_raw == "" else int(injected_raw)
                 for decoder in decoders:
-                    result = decode_policy(decoder, matrix, syndrome, prior_p=args.bp_prior)
+                    result = decode_policy(decoder, matrix, syndrome, prior_p=args.bit_flip_prior)
                     correction = list(result.correction)
                     residual = list(result.residual)
                     if injected != "":

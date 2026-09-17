@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Analyze paper_05 live CSS-LDPC syndrome correction results."""
+"""Analyze paper_05 live compact CSS/Steane syndrome correction results."""
 
 from __future__ import annotations
 
@@ -347,7 +347,7 @@ def main() -> int:
     plot_syndrome_heatmap(rows, out_dir, manuscript_dir)
     plot_correction_match(summary_rows, out_dir, manuscript_dir)
     plot_correction_volume(summary_rows, out_dir, manuscript_dir)
-    print(f"Wrote paper_05 CSS-LDPC analysis to {out_dir}")
+    print(f"Wrote paper_05 compact CSS/Steane analysis to {out_dir}")
     return 0
 
 

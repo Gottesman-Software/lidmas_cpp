@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Fetch a completed paper_05 CSS-LDPC IBM Runtime job."""
+"""Fetch a completed paper_05 compact CSS/Steane IBM Runtime job."""
 
 from __future__ import annotations
 
@@ -49,7 +49,7 @@ def main() -> int:
     job_id = str(submission["job_id"])
     job = service.job(job_id)
     status = job_status_value(job)
-    print(f"Fetched IBM Runtime CSS-LDPC job {job_id}; status={status}")
+    print(f"Fetched IBM Runtime compact CSS/Steane job {job_id}; status={status}")
     if args.status_only:
         return 0
 
@@ -76,7 +76,7 @@ def main() -> int:
     with out_path.open("w", encoding="utf-8") as f:
         json.dump(payload, f, indent=2)
         f.write("\n")
-    print(f"Wrote IBM Runtime CSS-LDPC result payload to {out_path}")
+    print(f"Wrote IBM Runtime compact CSS/Steane result payload to {out_path}")
     return 0
 
 

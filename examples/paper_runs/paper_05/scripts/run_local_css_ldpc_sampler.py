@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Generate local paper_05 CSS-LDPC syndrome measurements."""
+"""Generate local paper_05 compact CSS/Steane syndrome measurements."""
 
 from __future__ import annotations
 
@@ -108,7 +108,7 @@ def main() -> int:
     with out_path.open("w", encoding="utf-8") as f:
         json.dump(payload, f, indent=2)
         f.write("\n")
-    print(f"Wrote local CSS-LDPC results to {out_path}")
+    print(f"Wrote local compact CSS/Steane results to {out_path}")
     return 0
 
 
